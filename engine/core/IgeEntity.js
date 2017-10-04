@@ -4031,6 +4031,30 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
+	 * Calculates the current angle value based on the time along the
+	 * value range.
+	 * @param {Number} startAngle The angle that the interpolation started from.
+	 * @param {Number} endAngle The target angle to be interpolated to.
+	 * @param {Number} startTime The time the interpolation started.
+	 * @param {Number} currentTime The current time.
+	 * @param {Number} endTime The time the interpolation will end.
+	 * @return {Number} The interpolated value.
+	 */
+	interpolateAngle: function (startAngle, endAngle, startTime, currentTime, endTime) {
+		var dataDelta = endTime - startTime,
+			offsetDelta = currentTime - startTime,
+			deltaTime = offsetDelta / dataDelta,
+			maxAngle = Math.PI*2,
+			deltaAngle = (startAngle - endAngle) % maxAngle,
+			shortAngle =  -1 * ((2 * deltaAngle) % maxAngle - deltaAngle);
+
+		// Clamp the current time from 0 to 1
+		if (deltaTime < 0) { deltaTime = 0; } else if (deltaTime > 1) { deltaTime = 1; }
+		
+		return startAngle + (shortAngle * deltaTime);
+	},
+
+	/**
 	 * Processes the time stream for the entity.
 	 * @param {Number} renderTime The time that the time stream is
 	 * targeting to render the entity at.
@@ -4130,9 +4154,9 @@ var IgeEntity = IgeObject.extend({
 			currentTransform[4] = this.interpolateValue(previousTransform[4], nextTransform[4], previousData[0], renderTime, nextData[0]);
 			currentTransform[5] = this.interpolateValue(previousTransform[5], nextTransform[5], previousData[0], renderTime, nextData[0]);
 			// Rotate
-			currentTransform[6] = this.interpolateValue(previousTransform[6], nextTransform[6], previousData[0], renderTime, nextData[0]);
-			currentTransform[7] = this.interpolateValue(previousTransform[7], nextTransform[7], previousData[0], renderTime, nextData[0]);
-			currentTransform[8] = this.interpolateValue(previousTransform[8], nextTransform[8], previousData[0], renderTime, nextData[0]);
+			currentTransform[6] = this.interpolateAngle(previousTransform[6], nextTransform[6], previousData[0], renderTime, nextData[0]);
+			currentTransform[7] = this.interpolateAngle(previousTransform[7], nextTransform[7], previousData[0], renderTime, nextData[0]);
+			currentTransform[8] = this.interpolateAngle(previousTransform[8], nextTransform[8], previousData[0], renderTime, nextData[0]);
 
 			this.translateTo(parseFloat(currentTransform[0]), parseFloat(currentTransform[1]), parseFloat(currentTransform[2]));
 			this.scaleTo(parseFloat(currentTransform[3]), parseFloat(currentTransform[4]), parseFloat(currentTransform[5]));
