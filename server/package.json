@@ -1,8 +1,8 @@
 {
 	"name": "igeServer",
 	"version": "1.1.1",
-	"author":"Irrelon Software Limited <isogenic@irrelon.com>",
-	"description":"The Isogenic Engine game server application.",
+	"author": "Irrelon Software Limited <isogenic@irrelon.com>",
+	"description": "The Isogenic Engine game server application.",
 	"contributors": [
 		{
 			"name": "Rob Evans",
@@ -14,10 +14,11 @@
 		"easyimage": "0.1.3",
 		"mongodb": "1.0.2",
 		"mysql": "2.0.0-alpha3",
+		"net.io-server": "https://github.com/coolbloke1324/net.io-server/tarball/master",
 		"node-arguments": "0.0.1",
 		"socket.io": "0.9.14",
-		"uglify-js2": "2.1.4",
-		"net.io-server": "https://github.com/coolbloke1324/net.io-server/tarball/master"
+		"uglify-es": "^3.1.3",
+		"uglify-js2": "2.1.4"
 	},
 	"engines": {
 		"node": ">=0.8.3"

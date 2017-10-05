@@ -177,6 +177,7 @@ var IgeNode = IgeClass.extend({
 		deployOptions.proto = args['-proto'];
 		deployOptions.clearClasses = args['-clearClasses'];
 		deployOptions.debug = args['-debug'];
+		deployOptions.removeLog = args['-removeLog'];
 
 		if (!this.fs.existsSync(toPath)) {
 			this.fs.mkdirSync(toPath);
@@ -437,14 +438,22 @@ var IgeNode = IgeClass.extend({
 
 	obfuscate: function (source, seed, opts, deployOptions) {
 		var jsp = this.parser,
-			UglifyJS = require('uglify-js2'),
-			compressor = UglifyJS.Compressor(
-				{
-					warnings:false,
-					drop_debugger: !deployOptions.debug
-				}
-			),
-			options,
+			UglifyJS = require('uglify-es'),
+			options = {
+			    mangle:{
+				reserved: ["IgeEntity"],
+				keep_classnames: true,
+				keep_fnames: true,
+//				toplevel: true,
+//				properties: true
+			    },
+			    compress: false,
+//			    compress: {
+//				dead_code: true
+//			    },
+//			    warnings: false,
+//			    drop_debugger: !deployOptions.debug
+			},
 			orig_code,
 			ast,
 			compressed_ast,
@@ -452,25 +461,18 @@ var IgeNode = IgeClass.extend({
 
 		// Remove client-exclude marked code
 		source = source.replace(/\/\* CEXCLUDE \*\/[\s\S.]*?\* CEXCLUDE \*\//g, '');
+		
+		// remove .log code
+		if (deployOptions.removeLog) {
+		    console.log("removing all .log statements");
+		    source = source.replace(/(ige|this|console)(.|\n)log\((.|\n)*\);/gm, '');
+		}
 
-		// Pass to the uglify-js module
-		/*orig_code = source;
-		ast = jsp.parse(orig_code); // parse code and get the initial AST
-		ast = pro.ast_mangle(ast); // get a new AST with mangled names
-		ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
-
-		finCode = pro.gen_code(ast); // compressed code here*/
-
-		ast = UglifyJS.parse(source, options);
-		ast.figure_out_scope();
-		compressed_ast = ast.transform(compressor);
-		compressed_ast.figure_out_scope();
-		compressed_ast.compute_char_frequency();
-		compressed_ast.mangle_names();
-		finCode = compressed_ast.print_to_string();
-
+		ast = UglifyJS.minify(source, options);
+		finCode = ast;
+		
 		// Return final code
-		return finCode;
+		return finCode.code;
 	},
 
 	ask: function (question, callback) {
